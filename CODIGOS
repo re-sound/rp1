@@ -1,0 +1,121 @@
+1--
+VARIABLE b_contador NUMBER;
+EXEC :b_contador := 1;
+DECLARE
+   TYPE tp_varray_peliculas IS VARRAY(5) OF VARCHAR2(20);
+   varray_peliculas  tp_varray_peliculas;
+   v_numero NUMBER(2);
+BEGIN
+ varray_peliculas:= tp_varray_peliculas('Anabelle','Pantera Negra','Capitan America','El Pepe','Capitan Boxeo');
+    DBMS_OUTPUT.PUT_LINE('LISTADO DE PELICULAS');
+    FOR i IN varray_peliculas.first() .. varray_peliculas.count() LOOP
+        DBMS_OUTPUT.PUT_LINE(i||'. '||varray_peliculas(i));
+    END LOOP;
+    DBMS_OUTPUT.PUT_LINE('El total de peliiculas es '|| varray_peliculas.count());
+END; 
+
+
+2---
+DECLARE
+    TYPE tp_varray_fechas IS VARRAY(4) OF VARCHAR2(20);
+    varray_fechas tp_varray_fechas;
+    v_min_id_emp  NUMBER(3);
+    v_max_id_emp  NUMBER(3);
+    v_nombre      VARCHAR2(20);
+    v_apellido    VARCHAR2(20);
+    v_fecha_a_pagar VARCHAR2(20);
+BEGIN
+    varray_fechas := tp_varray_fechas('20 Abril', '21 Abril', '22 Abril', '24 Abril');
+    SELECT
+        MIN(nro_cliente),
+        MAX(nro_cliente)
+    INTO
+        v_min_id_emp,
+        v_max_id_emp
+    FROM
+        cliente;
+
+    FOR i IN v_min_id_emp .. v_max_id_emp LOOP
+        SELECT
+            PNOMBRE,
+            APPATERNO
+        INTO 
+            v_nombre,
+            v_apellido
+        FROM
+            cliente
+        WHERE
+            nro_cliente = i;
+
+        IF SUBSTR(v_apellido,1,1) BETWEEN 'A' AND 'D'  THEN
+            v_fecha_a_pagar:= varray_fechas(1);
+        ELSIF SUBSTR(v_apellido,1,1) BETWEEN 'E' AND 'J' THEN
+            v_fecha_a_pagar:= varray_fechas(2);
+        ELSIF SUBSTR(v_apellido,1,1) BETWEEN 'K' AND 'T' THEN
+            v_fecha_a_pagar:= varray_fechas(3);
+        ELSE
+            v_fecha_a_pagar:= varray_fechas(4);
+        END IF;
+
+        UPDATE cliente
+        SET
+            fecha_pago = v_fecha_a_pagar
+        WHERE
+            nro_cliente = i;
+
+    END LOOP;
+
+END;
+
+3---INTENNTO
+DECLARE
+    TYPE tp_varray_bono IS VARRAY(4) OF VARCHAR2(20);
+    varray_bono_bilbao tp_varray_fechas;
+    v_min_id_emp  NUMBER(3);
+    v_max_id_emp  NUMBER(3);
+    v_nombre      VARCHAR2(20);
+    v_apellido    VARCHAR2(20);
+    v_apellido2    VARCHAR2(20);
+    v_edad        VARCAHR2(20);
+    v_bono_bilbao VARCHAR2(20);
+BEGIN
+    varray_fechas := tp_varray_fechas('$50.000', '$100.000', '$150.000', '$200.000');
+    SELECT
+        MIN(nro_cliente),
+        MAX(nro_cliente)
+    INTO
+        v_min_id_emp,
+        v_max_id_emp
+    FROM
+        cliente;
+
+    FOR i IN v_min_id_emp .. v_max_id_emp LOOP
+        SELECT
+            PNOMBRE,
+            APPATERNO,
+            APMATERNO
+            MONTHS_BETWEEN(SYSDATE,fecha_nacimiento) /12
+        INTO 
+            v_nombre,
+            v_apellido,
+            v_apellido2
+        FROM
+            cliente
+        WHERE
+            nro_cliente = i;
+
+        
+        IF SUBSTR(v_apellido,1,1) BETWEEN 'A' AND 'D'  THEN
+            v_fecha_a_pagar:= varray_fechas(1);
+        ELSIF SUBSTR(v_apellido,1,1) BETWEEN 'E' AND 'J' THEN
+            v_fecha_a_pagar:= varray_fechas(2);
+        ELSIF SUBSTR(v_apellido,1,1) BETWEEN 'K' AND 'T' THEN
+            v_fecha_a_pagar:= varray_fechas(3);
+        ELSE
+            v_fecha_a_pagar:= varray_fechas(4);
+        END IF;
+        
+        DBMS_OUTPUT.PUT_LINE('Nombre '|| v_nombre||' '||v_apellido||' '||v_apellido2);
+    END LOOP;
+
+END;
