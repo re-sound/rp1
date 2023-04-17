@@ -1,0 +1,10 @@
+DECLARE
+   TYPE tp_varray_ropa IS VARRAY(3) OF VARCHAR2(20);
+   varray_prendas  tp_varray_ropa;
+BEGIN
+ varray_prendas:= tp_varray_ropa('Pantalon','Polera','Chaqueta');
+
+    FOR i IN varray_prendas.first() .. varray_prendas.count() LOOP
+        DBMS_OUTPUT.PUT_LINE(varray_prendas(i));
+    END LOOP;
+END; 
