@@ -1,0 +1,71 @@
+DECLARE
+v_contador_empleado NUMBER(15);
+v_carga_familiar NUMBER(5);
+v_desc_salud NUMBER(6);
+
+
+CURSOR c_vacunatorio IS
+    SELECT
+        nombre_vacunatorio vacunatorio
+    FROM
+        vacunatorio;
+
+CURSOR c_empleado(p_nombre_vacunatorio VARCHAR2) IS
+    SELECT
+        e.nombre_emp nombre ,
+        e.apmaterno_emp apellido,
+        TRUNC(MONTHS_BETWEEN(SYSDATE,e.fecing_emp) /12) añostrabajados,
+        e.sueldo_base_emp sueldobase,
+        e.numrun_emp rut,
+        s.porc_descto_salud salud,
+        a.PORC_DESCTO_AFP afp
+    FROM
+        empleado e
+    INNER JOIN vacunatorio v ON v.id_vacunatorio = e.id_vacunatorio 
+    INNER JOIN salud s ON s.cod_salud = e.cod_salud
+    INNER JOIN afp a ON e.cod_afp = a.cod_afp
+    WHERE v.nombre_vacunatorio = p_nombre_vacunatorio;
+
+
+
+
+
+BEGIN
+
+ 
+ FOR r_vacunatorio in c_vacunatorio LOOP
+    dbms_output.put_line('Vacunatorio: ' || r_vacunatorio.vacunatorio);
+    v_contador_empleado := 0;
+        FOR r_empleado in c_empleado(r_vacunatorio.vacunatorio)LOOP
+            dbms_output.put_line('Nombre: ' || r_empleado.nombre||' '||r_empleado.apellido);
+            dbms_output.put_line('Años Trabajados: ' ||r_empleado.añostrabajados);
+            dbms_output.put_line('Sueldo base: ' ||r_empleado.sueldobase);
+            SELECT
+                COUNT(*)
+            INTO
+                v_carga_familiar
+            FROM
+                carga_familiar
+            WHERE NUMRUN_EMP = r_empleado.rut;
+            dbms_output.put_line('Carga Familiar: ' ||v_carga_familiar);
+            dbms_output.put_line('Descuento Salud: ' ||TRUNC(((r_empleado.sueldobase * r_empleado.salud)/100)));
+            dbms_output.put_line('Descuento AFP: ' ||TRUNC(((r_empleado.sueldobase * r_empleado.afp)/100)));
+            v_contador_empleado := v_contador_empleado + 1;
+            dbms_output.put_line('               ');
+            
+            
+            
+            
+            
+
+        
+            
+        END LOOP;
+        
+        dbms_output.put_line('TOTAL EMPLEADOS: '||v_contador_empleado);
+        dbms_output.put_line('               ');
+ END LOOP;
+
+
+
+END;
