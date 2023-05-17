@@ -1,0 +1,70 @@
+DECLARE
+    v_contador_emp NUMBER;
+    v_contador_asig_annios NUMBER;
+    v_contador_cfam NUMBER;
+    v_contador_testpcr NUMBER;
+    v_total_haberes NUMBER;
+CURSOR c_vacunatorio is
+    SELECT 
+        id_vacunatorio idvacunatorio 
+    FROM 
+        vacunatorio;
+    
+    cursor c_empleado(p_id_vacunatorio NUMBER) IS
+    
+    SELECT 
+        bc.valor_asig_annos asigannios,
+        bc.valor_cargas_fam cfam,
+        bc.test_pcr testpcr,
+        bc.valor_tot_haberes totalhaberes
+        
+    FROM 
+        beneficios_calc_mes bc
+    INNER JOIN vacunatorio v ON v.id_vacunatorio = bc.id_vacunatorio
+    WHERE v.id_vacunatorio = p_id_vacunatorio;
+
+BEGIN
+    
+    FOR r_vacunatorio IN c_vacunatorio LOOP
+        v_contador_emp := 0;
+        v_contador_asig_annios := 0;
+        v_contador_cfam := 0;
+        v_contador_testpcr := 0;
+        v_total_haberes := 0;
+        dbms_output.put_line('ID VACUNATORIO '||r_vacunatorio.idvacunatorio);
+        dbms_output.put_line('02');
+        dbms_output.put_line('2023');
+        FOR r_empleado IN c_empleado(r_vacunatorio.idvacunatorio) LOOP
+            IF r_empleado.asigannios > 0 THEN
+                v_contador_asig_annios:= v_contador_asig_annios + 1;
+            ELSE
+                v_contador_asig_annios:= v_contador_asig_annios + 0;
+            END IF;
+            
+            IF r_empleado.cfam > 0 THEN
+                v_contador_cfam := v_contador_cfam + 1;
+            ELSE
+                v_contador_cfam := v_contador_cfam + 0;
+            END IF;
+            
+            IF r_empleado.testpcr > 0 THEN
+                v_contador_testpcr := v_contador_testpcr + 1;
+            ELSE
+                v_contador_testpcr := v_contador_testpcr + 0;
+            END IF;
+            
+            v_total_haberes := v_total_haberes + r_empleado.totalhaberes;
+            
+            
+            v_contador_emp := v_contador_emp + 1;
+            
+            
+        END LOOP;
+        dbms_output.put_line('TOTAL EMPLEADO '||v_contador_emp);
+        dbms_output.put_line('TOTAL EMPLEADOS POR ASIGNACION AÑOS '||v_contador_asig_annios);
+        dbms_output.put_line('TOTAL EMPLEADOS POR CARGA FAMILIAR '||v_contador_cfam);
+        dbms_output.put_line('TOTAL EMPLEADOS POR TEST PCR '||v_contador_testpcr);
+        dbms_output.put_line('TOTAL EMPLEADOS HABERES '||v_total_haberes);
+        dbms_output.put_line('------------');
+    END LOOP;
+END;
