@@ -1,0 +1,27 @@
+CREATE OR REPLACE PROCEDURE SALUDAR AS 
+
+CURSOR c_edificio IS
+    SELECT 
+        id_edif idedif
+    FROM 
+        edificio;
+CURSOR c_departamento(p_id_edificio NUMBER) IS
+    SELECT 
+         d.nro_depto iddepa,
+         gc.monto_total_gc montototal
+    FROM 
+        DEPARTAMENTO d
+    INNER JOIN edificio e ON e.id_edif = d.id_edif 
+    INNER JOIN GASTO_COMUN gc ON gc.id_edif = e.id_edif AND gc.nro_depto = d.nro_depto
+    WHERE e.id_edif = p_id_edificio;
+
+BEGIN
+    FOR r_edificio IN c_edificio LOOP
+            DBMS_OUTPUT.PUT_LINE('EDIFICIO'||r_edificio.idedif);
+            FOR r_departamento IN c_departamento(r_edificio.idedif) LOOP
+                DBMS_OUTPUT.PUT_LINE('DEPARTAMENTO: '||r_departamento.iddepa||' '||'GASTO COMUN TOTAL: '||TRIM(TO_CHAR(r_departamento.montototal, '999G999G999')));
+
+            END LOOP;
+    END LOOP;
+
+END SALUDAR;
